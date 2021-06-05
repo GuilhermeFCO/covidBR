@@ -1,0 +1,13 @@
+logo <- hexSticker::sticker(package = "covidBR",
+							p_size = 20,
+							p_x = 1,
+							p_y = 1.7,
+							subplot = "logo/virus.png",
+							s_x = 1,
+							s_y = 0.9,
+							s_width = 0.69,
+							s_height = 0.69,
+							h_fill = "#383838",
+							h_color = "#000000",
+							dpi = 500,
+							filename = "logo/logo.png")
