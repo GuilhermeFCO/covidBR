@@ -20,4 +20,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: 
     magrittr,
-    covid19br
+    covid19br,
+    dplyr,
+    geobr,
+    stringr,
+    data.table
