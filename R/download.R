@@ -1,12 +1,16 @@
 #' Download data of covid in brasil
 #'
-#' @param dir to save data
-#'
+#' @param dir to save data `directory`
+#' @param maps with maps or no `boolean()`
+#' @param date for maps, if NULL, is the last `date()`
+#' 
+#' @return `message()`
+#' 
 #' @author Guilherme Fernandes Castro de Oliveira
 #'
 #' @export
 #'
-downloadCovidBR <- function(dir = "./") {
+downloadCovidBR <- function(dir = "./", maps = FALSE, date = NULL) {
 
 	brazil <- covid19br::downloadCovid19(level = "brazil")
 	regions <- covid19br::downloadCovid19(level = "regions")
@@ -109,7 +113,7 @@ downloadCovidBR <- function(dir = "./") {
 	saveRDS(object = cities, file = paste0(dir, "rds/cities.rds"))
 
 	aux <- cities %>%
-		dplyr::group_by(code_meso, date) %>%
+		dplyr::group_by(code_meso, date) %>% 
 		dplyr::summarise(pop = sum(pop),
 										 accumCases = sum(accumCases),
 										 newCases = sum(newCases),
@@ -117,7 +121,7 @@ downloadCovidBR <- function(dir = "./") {
 										 newDeaths = sum(newDeaths),
 										 newRecovered = sum(newRecovered),
 										 newFollowup = sum(newFollowup),
-										 ano = ano,
+										 ano = mean(ano),
 										 ivs = mean(ivs, na.rm = TRUE),
 										 ivs_infraestrutura_urbana = mean(ivs_infraestrutura_urbana, na.rm = TRUE),
 										 ivs_capital_humano = mean(ivs_capital_humano, na.rm = TRUE),
@@ -127,7 +131,8 @@ downloadCovidBR <- function(dir = "./") {
 										 idhm_educ = mean(idhm_educ, na.rm = TRUE),
 										 idhm_renda = mean(idhm_renda, na.rm = TRUE),
 										 renda_per_capita = mean(renda_per_capita, na.rm = TRUE),
-										 gini = mean(gini, na.rm = TRUE),										 )
+										 gini = mean(gini, na.rm = TRUE))
+	
 	aux <- aux[!is.na(aux$code_meso),]
 	meso <- dplyr::left_join(meso, aux, by = c("code" = "code_meso"))
 	rm(aux)
@@ -144,7 +149,7 @@ downloadCovidBR <- function(dir = "./") {
 										 newDeaths = sum(newDeaths),
 										 newRecovered = sum(newRecovered),
 										 newFollowup = sum(newFollowup),
-										 ano = ano,
+										 ano = mean(ano),
 										 ivs = mean(ivs, na.rm = TRUE),
 										 ivs_infraestrutura_urbana = mean(ivs_infraestrutura_urbana, na.rm = TRUE),
 										 ivs_capital_humano = mean(ivs_capital_humano, na.rm = TRUE),
@@ -154,11 +159,133 @@ downloadCovidBR <- function(dir = "./") {
 										 idhm_educ = mean(idhm_educ, na.rm = TRUE),
 										 idhm_renda = mean(idhm_renda, na.rm = TRUE),
 										 renda_per_capita = mean(renda_per_capita, na.rm = TRUE),
-										 gini = mean(gini, na.rm = TRUE),										 )
+										 gini = mean(gini, na.rm = TRUE))
 	aux <- aux[!is.na(aux$code_micro),]
 	micro <- dplyr::left_join(micro, aux, by = c("code" = "code_micro"))
 	rm(aux)
 	micro <- micro %>% dplyr::relocate(date, .after = name_micro)
 	micro$code <- as.character(micro$code)
 	saveRDS(object = micro, file = paste0(dir, "rds/micro.rds"))
+	
+	rm(list = c("brazil", "regions", "states", "meso", "micro", "cities"))
+	
+	if (maps)
+		createMaps(dir = dir, date = date)
+	
+	return(message("\n\nThe database was downloaded correctly.\n\n"))
+}
+
+
+#' Create maps with database of covidBR
+#'
+#' @param dir of your database generated with downloadCovidBR function `directory`
+#' @param date for maps, if NULL, is the last `date()`
+#'
+#' @return `message()`
+#'
+#' @author Guilherme Fernandes Castro de Oliveira
+#' 
+createMaps <- function(dir = "./", date = NULL) {
+	
+	if (!dir.exists(paste0(dir, "rds")) |
+			!file.exists(paste0(dir, "rds/cities.rds")) |
+			!file.exists(paste0(dir, "rds/meso.rds")) |
+			!file.exists(paste0(dir, "rds/micro.rds")) |
+			!file.exists(paste0(dir, "rds/regions.rds")) |
+			!file.exists(paste0(dir, "rds/states.rds"))) {
+		
+		return(message("\n\nPlease use downloadCovidBR function in the same directory first!\n\n"))
+	}
+	
+	if (!dir.exists(paste0(dir, "maps"))) 
+		dir.create(paste0(dir, "maps"))
+	
+	regions <- readRDS(paste0(dir, "rds/regions.rds"))
+	
+	aux <- data.frame(geobr::read_region(year = 2020))
+	aux <- aux %>% dplyr::select(code_region, geom)
+	
+	if (is.null(date)) {
+		regions <- regions %>% dplyr::filter(date == max(regions$date))
+	} else {
+		regions <- regions %>% dplyr::filter(date == base::as.date(date))
+	}
+	
+	aux$code_region <- as.character(aux$code_region)
+	regions <- dplyr::left_join(regions, aux, by = c("code" = "code_region"))
+	
+	saveRDS(regions, file = paste0(dir, "maps/regions.rds"))
+	rm(list = c("regions", "aux"))
+	
+	
+	states <- readRDS(paste0(dir, "rds/states.rds"))
+	
+	aux <- data.frame(geobr::read_state(code_state = "all", year = 2020))
+	aux <- aux %>% dplyr::select(code_state, geom)
+	
+	if (is.null(date)) {
+		states <- states %>% dplyr::filter(date == max(states$date))
+	} else {
+		states <- states %>% dplyr::filter(date == base::as.date(date))
+	}
+	
+	aux$code_state <- as.character(aux$code_state)
+	states <- dplyr::left_join(states, aux, by = c("code" = "code_state"))
+	
+	saveRDS(states, file = paste0(dir, "maps/states.rds"))
+	rm(list = c("states", "aux"))
+	
+	
+	meso <- readRDS(paste0(dir, "rds/meso.rds"))
+	
+	aux <- data.frame(geobr::read_meso_region(code_meso = "all", year = 2020))
+	aux <- aux %>% dplyr::select(code_meso, geom)
+	
+	if (is.null(date)) {
+		meso <- meso %>% dplyr::filter(date == max(meso$date))
+	} else {
+		meso <- meso %>% dplyr::filter(date == base::as.date(date))
+	}
+	
+	aux$code_meso <- as.character(aux$code_meso)
+	meso <- dplyr::left_join(meso, aux, by = c("code" = "code_meso"))
+	
+	saveRDS(meso, file = paste0(dir, "maps/meso.rds"))
+	rm(list = c("meso", "aux"))
+	
+	
+	micro <- readRDS(paste0(dir, "rds/micro.rds"))
+	
+	aux <- data.frame(geobr::read_micro_region(code_micro = "all", year = 2020))
+	aux <- aux %>% dplyr::select(code_micro, geom)
+	
+	if (is.null(date)) {
+		micro <- micro %>% dplyr::filter(date == max(micro$date))
+	} else {
+		micro <- micro %>% dplyr::filter(date == base::as.date(date))
+	}
+	
+	aux$code_micro <- as.character(aux$code_micro)
+	micro <- dplyr::left_join(micro, aux, by = c("code" = "code_micro"))
+	
+	saveRDS(micro, file = paste0(dir, "maps/micro.rds"))
+	rm(list = c("micro", "aux"))
+	
+	
+	cities <- readRDS(paste0(dir, "rds/cities.rds"))
+	
+	aux <- data.frame(geobr::read_municipality(code_muni = "all", year = 2020))
+	aux <- aux %>% dplyr::select(code_muni, geom)
+	
+	if (is.null(date)) {
+		cities <- cities %>% dplyr::filter(date == max(cities$date))
+	} else {
+		cities <- cities %>% dplyr::filter(date == base::as.date(date))
+	}
+	
+	aux$code_muni <- as.character(aux$code_muni)
+	cities <- dplyr::left_join(cities, aux, by = c("code" = "code_muni"))
+	
+	saveRDS(cities, file = paste0(dir, "maps/cities.rds"))
+	rm(list = c("cities", "aux"))
 }
