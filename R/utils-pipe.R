@@ -45,5 +45,6 @@ globalVariables(
 		"pop",
 		"region",
 		"renda_per_capita",
-		"state")
+		"state",
+		"as.date")
 )

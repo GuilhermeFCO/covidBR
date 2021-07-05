@@ -208,7 +208,7 @@ createMaps <- function(dir = "./", date = NULL) {
 	if (is.null(date)) {
 		regions <- regions %>% dplyr::filter(date == max(regions$date))
 	} else {
-		regions <- regions %>% dplyr::filter(date == base::as.date(date))
+		regions <- regions %>% dplyr::filter(date == as.date(date))
 	}
 	
 	aux$code_region <- as.character(aux$code_region)
@@ -226,7 +226,7 @@ createMaps <- function(dir = "./", date = NULL) {
 	if (is.null(date)) {
 		states <- states %>% dplyr::filter(date == max(states$date))
 	} else {
-		states <- states %>% dplyr::filter(date == base::as.date(date))
+		states <- states %>% dplyr::filter(date == as.date(date))
 	}
 	
 	aux$code_state <- as.character(aux$code_state)
@@ -244,7 +244,7 @@ createMaps <- function(dir = "./", date = NULL) {
 	if (is.null(date)) {
 		meso <- meso %>% dplyr::filter(date == max(meso$date))
 	} else {
-		meso <- meso %>% dplyr::filter(date == base::as.date(date))
+		meso <- meso %>% dplyr::filter(date == as.date(date))
 	}
 	
 	aux$code_meso <- as.character(aux$code_meso)
@@ -262,7 +262,7 @@ createMaps <- function(dir = "./", date = NULL) {
 	if (is.null(date)) {
 		micro <- micro %>% dplyr::filter(date == max(micro$date))
 	} else {
-		micro <- micro %>% dplyr::filter(date == base::as.date(date))
+		micro <- micro %>% dplyr::filter(date == as.date(date))
 	}
 	
 	aux$code_micro <- as.character(aux$code_micro)
@@ -280,7 +280,7 @@ createMaps <- function(dir = "./", date = NULL) {
 	if (is.null(date)) {
 		cities <- cities %>% dplyr::filter(date == max(cities$date))
 	} else {
-		cities <- cities %>% dplyr::filter(date == base::as.date(date))
+		cities <- cities %>% dplyr::filter(date == as.date(date))
 	}
 	
 	aux$code_muni <- as.character(aux$code_muni)
@@ -288,4 +288,6 @@ createMaps <- function(dir = "./", date = NULL) {
 	
 	saveRDS(cities, file = paste0(dir, "maps/cities.rds"))
 	rm(list = c("cities", "aux"))
+	
+	return(message("\n\nYour maps is been created with success!\n\n"))
 }
