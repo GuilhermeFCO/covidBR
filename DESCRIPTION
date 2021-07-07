@@ -7,8 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "guilherme.f.castro@ufv.br",
            comment = c(ORCID = "https://orcid.org/0000-0003-0219-6783"))
-Maintainer: Guilherme Fernandes <guilherme.f.castro@ufv.br>           
-Date: 2021-05-30
+Maintainer: Guilherme Fernandes <guilherme.f.castro@ufv.br>
 URL: https://github.com/GuilhermeFCO/covidBR
 BugReports: https://github.com/GuilhermeFCO/covidBR/issues
 Description: Package to download Data of Covid-19 in Brazil and ShinyApp
