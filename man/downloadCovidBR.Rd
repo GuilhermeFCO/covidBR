@@ -4,7 +4,7 @@
 \alias{downloadCovidBR}
 \title{Download data of covid in brasil}
 \usage{
-downloadCovidBR(dir = "./", maps = FALSE, date = NULL)
+downloadCovidBR(dir = "./", maps = FALSE, date = NULL, withCorr = FALSE)
 }
 \arguments{
 \item{dir}{to save data \code{directory}}
@@ -12,6 +12,8 @@ downloadCovidBR(dir = "./", maps = FALSE, date = NULL)
 \item{maps}{with maps or no \code{boolean()}}
 
 \item{date}{for maps, if NULL, is the last \code{date()}}
+
+\item{withCorr}{for maps, with correlation of data or no \code{boolean()}}
 }
 \value{
 \code{message()}
