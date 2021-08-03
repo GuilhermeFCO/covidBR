@@ -1,4 +1,3 @@
-
 #' Create maps with database of covidBR
 #'
 #' @param dir of your database generated with downloadCovidBR function `directory`
@@ -9,7 +8,11 @@
 #'
 #' @author Guilherme Fernandes Castro de Oliveira
 #' 
+#' @export
+#' 
 createMaps <- function(dir = "./", date = NULL, withCorr = FALSE) {
+	
+	quiet()
 	
 	if (!dir.exists(paste0(dir, "rds")) |
 			!file.exists(paste0(dir, "rds/cities.rds")) |
@@ -414,6 +417,7 @@ createMaps <- function(dir = "./", date = NULL, withCorr = FALSE) {
 	}
 	
 	aux$code_muni <- as.character(aux$code_muni)
+	stringr::str_sub(aux$code_muni, end = 6)
 	cities <- dplyr::left_join(cities, aux, by = c("code" = "code_muni"))
 	
 	saveRDS(cities, file = paste0(dir, "maps/cities.rds"))
