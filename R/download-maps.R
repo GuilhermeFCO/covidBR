@@ -12,8 +12,6 @@
 #' 
 createMaps <- function(dir = "./", date = NULL, withCorr = FALSE) {
 	
-	quiet()
-	
 	if (!dir.exists(paste0(dir, "rds")) |
 			!file.exists(paste0(dir, "rds/cities.rds")) |
 			!file.exists(paste0(dir, "rds/meso.rds")) |
